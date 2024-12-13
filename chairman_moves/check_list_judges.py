@@ -11,7 +11,7 @@ async def check_list(text, user_id):
     try:
         s = ''
         list_for_group_counter = []
-        flag1, flag2, flag3, flag4, flag5, flag6, flag7 = 0, 0, 0, 0, 0, 0, 0
+        flag1, flag2, flag3, flag4, flag5, flag6, flag7, flag8 = 0, 0, 0, 0, 0, 0, 0, 0
         active_comp = await general_queries.get_CompId(user_id)
         const = await general_queries.get_tournament_lin_const(active_comp)
         judges_free = await general_queries.get_judges_free(active_comp)
@@ -62,6 +62,8 @@ async def check_list(text, user_id):
                         const = k2
 
 
+
+
                 if '' in otherjud:
                     otherjud = []
 
@@ -81,11 +83,22 @@ async def check_list(text, user_id):
                     s += f'❌Ошибка: {area}: количество членов линейной группы не соответствует установленной норме ({const}), на площадке - {len(linjud)}\n\n'
                     flag1 = 1
 
+
+                if flag1 == 0 and group_num is not None:
+
+                    groupType = await chairman_queries.is_rc_a(group_num, active_comp)
+                    if groupType == 0:
+                        msg, flag8 = await chairman_queries.check_rc_a_regions_VE(linjud, active_comp, group_num)
+                        if flag8 == 1:
+                            s += f"❌Ошибка: {area}: {msg}"
+
+
                 # Проверяем совмещение должностей на площадке
                 if len(set(otherjud) & set(linjud)) != 0:
                     flag4 = 1
                     a = ', '.join(map(str, set(otherjud) & set(linjud)))
                     s += f'🤔{area}: {a} совмеща(ет/ют) должности внутри площадки\n\n'
+
 
                 '''
                 # Проверяем фамилии линейных
@@ -128,7 +141,7 @@ async def check_list(text, user_id):
 
 
         config.judges_index[user_id] = judges_use
-        if flag1 + flag2 + flag3 + flag4 + flag5 + flag6 + flag7 == 0:
+        if flag1 + flag2 + flag3 + flag4 + flag5 + flag6 + flag7 + flag8 == 0:
             return (1, s, list_for_group_counter)
         else:
             return (0, s, list_for_group_counter)
@@ -136,7 +149,7 @@ async def check_list(text, user_id):
     except Exception as e:
         print('Ошибка проверки списка судей на валидность')
         print(2, e)
-        return (2, '')
+        return (2, '', -1)
 
 
 async def get_parse(text, user_id):

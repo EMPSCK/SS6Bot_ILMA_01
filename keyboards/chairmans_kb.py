@@ -171,7 +171,7 @@ async def get_gen_edit_markup(json):
     except Exception as e:
         print(e)
 
-
+from chairman_moves import generation_logic
 async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
     try:
         buttons = []
@@ -188,7 +188,7 @@ async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
         with conn:
             cur = conn.cursor()
             if judges[judgeId][1] == 'l':
-                cur.execute(f"SELECT firstName, lastName, id, DSFARR_Category_Id, SPORT_CategoryDate, SPORT_CategoryDateConfirm, SPORT_Category from competition_judges WHERE compId = {compId} and active = 1 and workCode = 0")
+                cur.execute(f"SELECT firstName, lastName, id, DSFARR_Category_Id, SPORT_CategoryDate, SPORT_CategoryDateConfirm, SPORT_Category, RegionId from competition_judges WHERE compId = {compId} and active = 1 and workCode = 0")
                 all_judges = cur.fetchall()
                 if len(all_judges) == 0:
                     but2.append(InlineKeyboardButton(text='Назад', callback_data=f"back_to_generation"))
@@ -212,6 +212,20 @@ async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
                 lin_neibors_clubs_list = await chairman_queries.get_lin_neibors_clubs(lin_neibors_list)
                 all_judges = await generation_logic.distinct_clubs_filter(lin_neibors_clubs_list, all_judges)
                 all_judges = await generation_logic.interdiction_filter(compId, judges[judgeId][0], all_judges)
+
+
+                if groupType == 0:
+                    pull = judges[judgeId][2]
+                    pull.remove(judgeId)
+                    info = await generation_logic.rc_a_region_rules(0, len(pull) + 1)
+                    compRegionId = await chairman_queries.get_region_id(compId)
+                    if compRegionId != 0:
+                        regions, code = await chairman_queries.get_judges_regions(pull, compRegionId)
+                        if code == 1:
+                            all_judges = await generation_logic.regions_change_filter(all_judges, info, regions, compRegionId)
+
+
+
 
 
             if judges[judgeId][1] == 'z':

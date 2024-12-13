@@ -1477,3 +1477,145 @@ async def clear_zgs(compId):
             conn.commit()
     except Exception as e:
         return -1
+
+
+async def get_judges_regions(judges, compRegion):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            regions = {compRegion: 0}
+            for judgeId in judges:
+                cur.execute(f"select RegionId from competition_judges where id = {judgeId}")
+                region = cur.fetchone()
+                if region is None:
+                    region = 0
+                    continue
+
+                region = region['RegionId']
+                if region in regions:
+                    regions[region] += 1
+                else:
+                    regions[region] = 1
+            return regions, 1
+    except Exception as e:
+        return -1, -1
+
+async def get_region_id(compId):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select RegionId from competition where compId = {compId}")
+            ans = cur.fetchone()
+            return ans['RegionId']
+    except:
+        return -1
+
+
+from chairman_moves import generation_logic
+async def check_rc_a_regions_VE(linjuds, compId, group_num):
+    try:
+        info = await generation_logic.rc_a_region_rules(0, len(linjuds))
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select RegionId from competition where compId = {compId}")
+            compRegion = cur.fetchone()
+            compRegion = compRegion['RegionId']
+            all_judges = []
+
+            if compRegion == 0 or compRegion is None:
+                return 0
+
+            for jud in linjuds:
+                i = jud.split()
+                if len(i) == 2:
+                    lastname, firstname = i
+                else:
+                    lastname = i[0]
+                    firstname = ' '.join(i[1::])
+
+                cur.execute(f"select id, lastName, firstName, RegionId from competition_judges where compId = {compId} and ((lastName = '{lastname}' and firstName = '{firstname}') or (lastName2 = '{lastname}' and firstName2 = '{firstname}'))")
+                jud_bd = cur.fetchall()
+                if len(jud_bd) != 1:
+                    return 0
+                jud_bd = jud_bd[0]
+                all_judges.append(jud_bd)
+        home, other = info
+        regions = {}
+        regions_result = 0
+        j_r_list = []
+        bad_list = set()
+        for jud in all_judges:
+            jud_region = jud['RegionId']
+            j_r_list.append((jud_region, jud['lastName'], jud['firstName']))
+            if jud_region in regions:
+                regions[jud_region] += 1
+            else:
+                regions[jud_region] = 1
+        for reg in regions:
+            if reg == compRegion and regions[reg] > home:
+                regions_result += 1
+                bad_list.add(reg)
+            else:
+                if reg != compRegion and regions[reg] > other:
+                    regions_result += 1
+                    bad_list.add(reg)
+        if regions_result == 0:
+            return 0
+        else:
+            msg = {}
+            for bad_reg in bad_list:
+                msg[bad_reg] = []
+                for j_r in j_r_list:
+                    if j_r[0] == bad_reg:
+                        msg[bad_reg].append((j_r[1], j_r[2]))
+
+            return f"Распределение регионов судей не соответствует правилам РС А: {msg}", 1
+
+    except Exception as e:
+        print(e)
+        return 0
+
+
+async def is_rc_a(group_num, compId):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select sport from competition_group where compId = {compId} and groupNumber = {group_num}")
+            ans = cur.fetchone()
+            if ans is None:
+                return -1
+            return ans['sport']
+    except:
+        return -1

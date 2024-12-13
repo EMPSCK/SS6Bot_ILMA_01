@@ -965,3 +965,17 @@ async def generation_zgs_cat_filter(all_judges, compId):
         return all_judges_01
     except Exception as e:
         return -1
+
+async def regions_change_filter(all_judges, info, regions, compRegion):
+    all_judges_01 = all_judges.copy()
+    home, neibor = info
+    for jud in all_judges:
+        jud_region = jud['RegionId']
+        if jud_region in regions:
+            if jud_region == compRegion:
+                if regions[jud_region] >= home:
+                    all_judges_01.remove(jud)
+            else:
+                if regions[jud_region] >= neibor:
+                    all_judges_01.remove(jud)
+    return all_judges_01
