@@ -146,6 +146,7 @@ async def update_ftsarr_judges_list(message: types.Message):
         '''
 
     text_01 = '''
+    <a href = "https://t.me/SS6Bot_support">Группа поддержки</a>
     Ниже представлен список команд для управления настройками SS6bot. Подробнее по <a href="https://disk.yandex.ru/i/nVPEow2k4ampWQ">ссылке</a>.
     
     <b>Общие</b>
