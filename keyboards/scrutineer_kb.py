@@ -26,3 +26,7 @@ back_mark = InlineKeyboardMarkup(inline_keyboard=[[back_b]])
 
 pin_b = InlineKeyboardButton(text='Ввести код', callback_data=f"enter_chairaman_pin")
 chairman_reg_mark = InlineKeyboardMarkup(inline_keyboard=[[pin_b, back_b]])
+
+conf_data =InlineKeyboardButton(text='Подтвердить', callback_data=f"conf_chairman_data")
+reject_data =InlineKeyboardButton(text='Отклонить', callback_data=f"reject_chairman_data")
+accept_gs_data_kb =InlineKeyboardMarkup(inline_keyboard=[[conf_data, reject_data]])

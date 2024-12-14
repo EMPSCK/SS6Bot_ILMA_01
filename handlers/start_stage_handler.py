@@ -17,6 +17,7 @@ from aiogram.fsm.state import StatesGroup, State
 from queries import scrutineer_queries
 router = Router()
 enter_pin_messages = {}
+Codes = {}
 
 
 @router.message(Command("start"))
@@ -55,12 +56,14 @@ async def cmd_start(callback: types.CallbackQuery):
 class Chairman_reg_states(StatesGroup):
     firstState = State()
 
+
 @router.callback_query(F.data == 'enter_chairaman_pin')
 async def cmd_start(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.edit_text('Введите код: ', reply_markup=scrutineer_kb.back_mark)
     enter_pin_messages[callback.from_user.id] = callback.message
     await state.set_state(Chairman_reg_states.firstState)
+
 
 @router.message(Chairman_reg_states.firstState)
 async def f2(message: Message, state: FSMContext):
@@ -78,6 +81,9 @@ async def f2(message: Message, state: FSMContext):
                 text, userstatus = await get_mes_menu(message)
                 await message.delete()
                 if userstatus == 3:
+                    #active_comp = await scrutineer_queries.pin_to_compid(pin)
+                    #info = await general_queries.CompId_to_name(active_comp)
+
                     await oldmessage.edit_text(text, reply_markup=chairmans_kb.menu_kb)
                     await state.clear()
 
@@ -91,6 +97,8 @@ async def f2(message: Message, state: FSMContext):
             await state.clear()
     except:
         await state.clear()
+
+
 
 @router.callback_query(F.data == 'back_b')
 async def cmd_start(callback: types.CallbackQuery, state: FSMContext):
@@ -122,29 +130,6 @@ async def update_ftsarr_judges_list(message: types.Message):
 async def update_ftsarr_judges_list(message: types.Message):
     await message.delete()
     #text = '''<b>Список команд:</b>\n/id - получить telegram_id, chairman/scrutineer\n\n/judges - начать загрузку списка судей, chairman/scrutineer\n\n/clean - удалить загруженных внутри соревнования, chairman/scrutineer\n\n/free - показать свободных после отправки последнего списка, chairman/scrutineer\n\n/updateftsarrlist - обновить общий список судей, admin\n\n/delactive - снести активность всем судьям внутри соревнования, chairman/scrutineer\n\n/cleancounter - обнулить счетчик судейств в группах, chairman/scrutineer\n\n/change_generation_mode - изменить режим генерации списков в активном соревновании, chairman/scrutineer\n\n/change_private_mode - изменить режим конфиденциальности, chairman/scrutineer'''
-    text_01 = '''Ниже представлен список команд для управления настройками SS6bot. Пример работы с ботом можно посмотреть по ссылке.
-
-        <b>Общие</b>
-        /start -  запустить бота или перейти в меню
-        /help - список доступных команд
-        /id - получить telegram_id
-        /updateftsarrlist - обновить общий список судей, admin
-
-        <b>Управление параметрами турнира</b>
-        /change_generation_mode - изменить режим генерации списков
-        /change_private_mode - изменить режим конфиденциальности
-
-        <b>Валидация судейских бригад</b>
-        /judges - начать загрузку списка судей
-        /clean - удалить загруженных судей внутри соревнования
-        /free - показать свободных судей после отправки последнего списка
-        /delactive -  деактивировать судей внутри соревнования
-        /cleancounter - обнулить счетчик судейств в группах
-        
-        <b>Генерация линейных бригад</b>
-        Для запуска генерации состава судейских бригад отправьте номера групп через пробел
-        '''
-
     text_01 = '''
     <a href = "https://t.me/SS6Bot_support">Группа поддержки</a>
     Ниже представлен список команд для управления настройками SS6bot. Подробнее по <a href="https://disk.yandex.ru/i/nVPEow2k4ampWQ">ссылке</a>.

@@ -170,3 +170,24 @@ async def change_geneation_zgs_mode(user_id):
                 return 1, 0
     except:
         return -1, -1
+
+
+async def pin_to_compid(pin):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select gsName from competition where pinCode = {pin}")
+            ans = cur.fetchone()
+            if ans is None:
+                return 'не определено'
+            return ans['gsName']
+    except:
+        return 'не определено'
