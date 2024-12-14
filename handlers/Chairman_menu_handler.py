@@ -539,7 +539,8 @@ async def f2(message: Message, state: FSMContext):
         else:
             await state.clear()
             return await message.answer('❌Ошибка. Неверный формат данных.')
-    except:
+    except Exception as e:
+        print(e)
         return await message.answer('❌Ошибка')
 
 
@@ -552,8 +553,9 @@ async def cmd_start(call: types.CallbackQuery, state: FSMContext):
         msg = await call.message.edit_text(json['msg'], reply_markup=chairmans_kb.generation_zgs_kb)
         generation_zgs_results[call.from_user.id] = {'json': json, 'num': num, 'compId': active_comp}
         await state.clear()
-    except:
-        return await call.answer('❌Ошибка')
+    except Exception as e:
+        print(e)
+        return await call.answer('❌Изменения не обнаружены')
 
 
 @router.callback_query(F.data == 'save_zgs_result')

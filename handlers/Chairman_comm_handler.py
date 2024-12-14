@@ -407,26 +407,6 @@ async def handle_text_message(message: types.Message):
     try:
         group_list = [int(i.strip('\n').strip('.')) for i in message.text.split()]
 
-        if len(group_list) == 1 and len(str(group_list[0])) == 4:
-            pin = group_list[0]
-            status = await scrutineer_queries.check_chairman_pin(message.from_user.id, int(pin), 0)
-            if status == -1:
-                await message.delete()
-                await message.answer('❌Ошибка')
-
-
-            if status == 1:
-                text, userstatus = await start_stage_handler.get_mes_menu(message)
-                await message.delete()
-                if userstatus == 3:
-                    await message.anwer(text, reply_markup=chairmans_kb.menu_kb)
-
-
-            if status == 0:
-                await message.delete()
-                await message.answer('❌Ошибка. Пинкод не найден.', reply_markup=scrutineer_kb.back_mark)
-
-
         active_comp = await general_queries.get_CompId(message.from_user.id)
         regionId = await chairman_queries.get_regionId(active_comp)
 
