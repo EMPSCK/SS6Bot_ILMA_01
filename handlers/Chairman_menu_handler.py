@@ -505,7 +505,7 @@ class Gen_zgs_states(StatesGroup):
     firstState = State()
 
 from chairman_moves import generation_logic
-@router.message(Command("gen_zgs"))
+@router.message(Command("judges_zgs"))
 async def cmd_start(message: Message, state: FSMContext):
     user_status = await get_user_status_query.get_user_status(message.from_user.id)
     if user_status == 2 or user_status == 3:
@@ -519,7 +519,7 @@ async def cmd_start(message: Message, state: FSMContext):
             return await message.answer('❌Ошибка. Соревнование неактивно.')
 
         await chairman_queries.clear_zgs(active_comp)
-        msg = await message.answer('Введите количество:')
+        msg = await message.answer('Введите необходимое количество згс:')
         generation_zgs_results[message.from_user.id] = {'en_msg': msg}
         await state.set_state(Gen_zgs_states.firstState)
 
@@ -553,7 +553,7 @@ async def cmd_start(call: types.CallbackQuery, state: FSMContext):
         generation_zgs_results[call.from_user.id] = {'json': json, 'num': num, 'compId': active_comp}
         await state.clear()
     except:
-        return await call.message.answer('❌Ошибка')
+        return await call.answer('❌Ошибка')
 
 
 @router.callback_query(F.data == 'save_zgs_result')
@@ -567,7 +567,7 @@ async def cmd_start(call: types.CallbackQuery):
             await call.message.delete_reply_markup()
             await call.message.answer('❌Ошибка')
     except:
-        return await call.message.answer('❌Ошибка')
+        return await call.answer('❌Ошибка')
 
 
 @router.callback_query(F.data == 'end_zgs_generation_proces')
@@ -591,7 +591,7 @@ async def cmd_start(call: types.CallbackQuery):
         markup = await chairmans_kb.get_gen_zgs_edit_markup_01(generation_zgs_results[call.from_user.id]['json'])
         await call.message.edit_reply_markup(reply_markup=markup)
     except:
-        return await call.message.answer('❌Ошибка')
+        return await call.answer('❌Ошибка')
 
 
 @router.callback_query(F.data.startswith('zgs_generation_'))
@@ -603,7 +603,7 @@ async def cmd_start(call: types.CallbackQuery):
                                                                generation_zgs_results[call.from_user.id]['compId'])
         await call.message.edit_reply_markup(reply_markup=markup)
     except:
-        return await call.message.answer('❌Ошибка')
+        return await call.answer('❌Ошибка')
 
 @router.callback_query(F.data.startswith('zgs_02_generation_'))
 async def cmd_start(call: types.CallbackQuery):
@@ -629,4 +629,4 @@ async def cmd_start(call: types.CallbackQuery):
         await call.message.edit_text(generation_zgs_results[call.from_user.id]['json']['msg'],
                                      reply_markup=chairmans_kb.generation_zgs_kb)
     except:
-        return await call.message.answer('❌Ошибка')
+        return await call.answer('❌Ошибка')
