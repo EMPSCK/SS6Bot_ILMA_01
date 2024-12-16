@@ -34,12 +34,11 @@ async def cmd_start(message: Message, state: FSMContext):
     if status == 3:
         await message.answer(text, reply_markup=chairmans_kb.menu_kb)
 
+
 @router.message(Command("id"))
 async def cmd_start(message: Message, state: FSMContext):
     await message.delete()
     await message.answer(f'🗓Telegram_id: <code>{message.from_user.id}</code>', parse_mode='HTML')
-
-
 
 
 @router.callback_query(F.data == 'scrutiner_role')
@@ -97,7 +96,6 @@ async def f2(message: Message, state: FSMContext):
             await state.clear()
     except:
         await state.clear()
-
 
 
 @router.callback_query(F.data == 'back_b')

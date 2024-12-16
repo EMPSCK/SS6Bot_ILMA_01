@@ -108,7 +108,7 @@ async def get_ans(data):
                         for l in relatives_dict[zgs_random_choice['id']]:
                             zgs_list_generation.pop(l, None)
 
-                    zgs_list_generation = await delete_club_from_judges(zgs_list_generation, zgs_random_choice['Club'])
+                    zgs_list_generation = await delete_club_from_judges(zgs_list_generation, zgs_random_choice['Club'], zgs_random_choice['City'])
 
                 else:
                     sucess_result_zgs = 0
@@ -208,7 +208,7 @@ async def get_ans(data):
                         regions[try_judge_data['RegionId']] = 1
 
                     # удалили всех с таким же клубом
-                    group_all_judges_list = await delete_club_from_judges(group_all_judges_list, try_judge_data['Club'])
+                    group_all_judges_list = await delete_club_from_judges(group_all_judges_list, try_judge_data['Club'], try_judge_data['City'])
 
                     # обновляем данные о судях, доступных для выбора
                     group_all_judges_list.pop(try_judge_data['id'],
@@ -392,7 +392,7 @@ async def get_all_judges_yana(compId):
         with conn:
             cur = conn.cursor()
             cur.execute(
-               f"SELECT id, lastName, firstName, SPORT_Category, RegionId, Club, bookNumber, group_counter, DSFARR_Category_Id, workCode FROM competition_judges WHERE compId = {compId} and active = 1 and workCode <= 1")  # выбираем только активных на данный момент судей
+               f"SELECT id, lastName, firstName, SPORT_Category, RegionId, Club, bookNumber, group_counter, DSFARR_Category_Id, workCode, City FROM competition_judges WHERE compId = {compId} and active = 1 and workCode <= 1")  # выбираем только активных на данный момент судей
             data = cur.fetchall()
             return data
 
@@ -485,10 +485,10 @@ async def get_random_judge(group_all_judges_list):
 
 
 #функция удаляет всех судей с таким же клубом
-async def delete_club_from_judges(list_of_judges, club_name):
+async def delete_club_from_judges(list_of_judges, club_name, club_city):
   dict_for_pop = list_of_judges.copy()
   for i in list(list_of_judges.values()):
-    if i['Club'] == club_name:
+    if i['Club'] == club_name and i['City'] == club_city:
       dict_for_pop.pop(i['id'], None)
   return dict_for_pop
 

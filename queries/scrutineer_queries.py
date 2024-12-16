@@ -99,19 +99,26 @@ async def check_chairman_pin(tg_id, pin, mode):
                 cur.execute(f"update competition set isActive = 1 where compId = {compid}")
                 conn.commit()
 
+                cur.execute(f"select gsName from competition where compId = {compid}")
+                gsName = cur.fetchone()
+                gsName = gsName['gsName']
+                if gsName is None:
+                    gsName = 'chairman'
+
                 if mode == 0:
-                    sql = "INSERT INTO skatebotusers (`tg_id`, `Id_active_comp`, `status`, `active`) VALUES (%s, %s, %s, %s)"
-                    cur.execute(sql, (tg_id, compid, 3, 1))
+                    sql = "INSERT INTO skatebotusers (`tg_id`, `Id_active_comp`, `status`, `active`, `сomment`) VALUES (%s, %s, %s, %s, %s)"
+                    cur.execute(sql, (tg_id, compid, 3, 1, gsName))
                     conn.commit()
 
                 cur.execute(f"update competition set chairman_Id = {tg_id} where compId = {compid}")
                 conn.commit()
                 if mode == 1:
-                    cur.execute(f"update skatebotusers set Id_active_comp = {compid} where tg_id = {tg_id}")
+                    cur.execute(f"update skatebotusers set Id_active_comp = {compid}, сomment = '{gsName}' where tg_id = {tg_id}")
                     conn.commit()
                 return 1
         return 0
     except Exception as e:
+        print(e)
         return -1
 
 async def change_private_mode(user_id):

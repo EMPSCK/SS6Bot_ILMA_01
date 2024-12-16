@@ -940,9 +940,9 @@ async def get_comment(user_id):
             cur.execute(f"SELECT сomment FROM skatebotusers WHERE tg_id = {user_id}")
             ans = cur.fetchone()
             cur.close()
-            if ans['comment'] is None:
+            if ans['сomment'] is None:
                 return 'chairman'
-            return ans['comment']
+            return ans['сomment']
     except Exception as e:
         print(e)
         return 0

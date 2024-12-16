@@ -17,7 +17,7 @@ confirm_choice_button_S = InlineKeyboardButton(text='Да', callback_data=f"conf
 confirm_choice_button1_S = InlineKeyboardButton(text='Нет', callback_data=f"confirm_choice_back_S")
 confirm_choice_kb_S = load_judges_kb = InlineKeyboardMarkup(inline_keyboard=[[confirm_choice_button_S, confirm_choice_button1_S]])
 
-chairman_b = InlineKeyboardButton(text='Chairman', callback_data=f"chairman_role")
+chairman_b = InlineKeyboardButton(text='Chairman', callback_data=f"enter_chairaman_pin")
 scrutiner_b = InlineKeyboardButton(text='Scrutineer', callback_data=f"scrutiner_role")
 scrutiner_chairman_mark = InlineKeyboardMarkup(inline_keyboard=[[chairman_b, scrutiner_b]])
 
