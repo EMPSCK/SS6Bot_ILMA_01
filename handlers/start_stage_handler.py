@@ -70,21 +70,18 @@ async def f2(message: Message, state: FSMContext):
     try:
         pin = message.text
         if pin.isdigit():
-            status = await scrutineer_queries.check_chairman_pin(message.from_user.id, int(pin), 0)
+            status = await scrutineer_queries.pin_to_compid(int(pin))
             if status == -1:
                 await message.delete()
                 await oldmessage.edit_text('❌Ошибка', reply_markup=scrutineer_kb.back_mark)
                 await state.clear()
 
             if status == 1:
-                text, userstatus = await get_mes_menu(message)
+                Codes[message.from_user.id] = pin
+                info = await scrutineer_queries.get_chairmanRegInfo(pin)
+                await oldmessage.edit_text(info, reply_markup=scrutineer_kb.accept_gs_data_kb)
+                await state.clear()
                 await message.delete()
-                if userstatus == 3:
-                    #active_comp = await scrutineer_queries.pin_to_compid(pin)
-                    #info = await general_queries.CompId_to_name(active_comp)
-
-                    await oldmessage.edit_text(text, reply_markup=chairmans_kb.menu_kb)
-                    await state.clear()
 
             if status == 0:
                 await message.delete()
@@ -96,6 +93,21 @@ async def f2(message: Message, state: FSMContext):
             await state.clear()
     except:
         await state.clear()
+
+
+@router.callback_query(F.data == 'conf_chairman_data')
+async def cmd_start(callback: types.CallbackQuery, state: FSMContext):
+    oldmessage = enter_pin_messages[callback.from_user.id]
+    await state.clear()
+    pin = Codes[callback.from_user.id]
+    status = await scrutineer_queries.check_chairman_pin(callback.from_user.id, pin, 0)
+    if status == 1:
+        text, userstatus = await get_cal_menu(callback)
+        if userstatus == 3:
+            await oldmessage.edit_text(text, reply_markup=chairmans_kb.menu_kb)
+            await state.clear()
+    else:
+        await oldmessage.edit_text("❌Ошибка")
 
 
 @router.callback_query(F.data == 'back_b')
@@ -169,16 +181,16 @@ async def get_cal_menu(callback: types.CallbackQuery):
 
     # scrutinner
     if user_status == 2:
-        active_comp = await general_queries.get_CompId(callback.message.from_user.id)
-        if await chairman_queries.del_unactive_comp(callback.message.from_user.id, active_comp) == 1:
+        active_comp = await general_queries.get_CompId(callback.from_user.id)
+        if await chairman_queries.del_unactive_comp(callback.from_user.id, active_comp) == 1:
             active_comp = None
         info = await general_queries.CompId_to_name(active_comp)
         return f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}", 2
 
     # chairman
     if user_status == 3:
-        active_comp = await general_queries.get_CompId(callback.message.from_user.id)
-        if await chairman_queries.del_unactive_comp(callback.message.from_user.id, active_comp) == 1:
+        active_comp = await general_queries.get_CompId(callback.from_user.id)
+        if await chairman_queries.del_unactive_comp(callback.from_user.id, active_comp) == 1:
             active_comp = None
         info = await general_queries.CompId_to_name(active_comp)
         return f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}", 3

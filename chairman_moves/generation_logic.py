@@ -533,6 +533,7 @@ async def ids_to_names(judges, active_comp):
             cur.execute(f"select lastName, firstName from competition_judges where compId = {active_comp} and id = {judid} and active = 1")
             ans = cur.fetchone()
             r.append(f'{ans["lastName"]} {ans["firstName"]}')
+        r.sort()
         return ', '.join(r)
 
 

@@ -91,7 +91,7 @@ async def check_chairman_pin(tg_id, pin, mode):
             ans = cur.fetchall()
             status, compid = 0, -1
             for comp in ans:
-                if comp['pinCode'] == pin:
+                if comp['pinCode'] == int(pin):
                     status, compid = 1, comp['compId']
                     break
 
@@ -116,7 +116,7 @@ async def check_chairman_pin(tg_id, pin, mode):
                     cur.execute(f"update skatebotusers set Id_active_comp = {compid}, сomment = '{gsName}' where tg_id = {tg_id}")
                     conn.commit()
                 return 1
-        return 0
+            return 0
     except Exception as e:
         print(e)
         return -1
@@ -242,12 +242,61 @@ async def get_group_list(user_id):
             if len(ans) == 0:
                 groupList = "Группы не были обнаруженны"
             for i in range(len(ans)):
-                if i % 2 != 0:
+                if i % 2 == 0:
                     groupList += f'<b>\n{ans[i]["groupNumber"]}. {ans[i]["groupName"]}</b>'
                 else:
                     groupList += f'\n{ans[i]["groupNumber"]}. {ans[i]["groupName"]}'
             text = f'{info}\n\n📋<b>Список групп:</b>{groupList}'
             return text
+    except Exception as e:
+        print(e)
+        return -1
+
+
+
+async def pin_to_compid(pin):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select compId from competition where pinCode = {pin}")
+            ans = cur.fetchone()
+            if ans is None:
+                return 0
+            else:
+                return 1
+
+    except Exception as e:
+        print(e)
+        return -1
+
+async def get_chairmanRegInfo(pin):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT compName, date1, date2, city, isSecret, gsName FROM competition WHERE pinCode = {pin}")
+            name = cur.fetchone()
+            cur.close()
+            if name == None:
+                return 'не установлено'
+            secretMode = name['gsName']
+            return f"{name['compName']}\n{str(name['date1'])};{str(name['date2'])}|{name['city']}\nГлавный судья: {secretMode}"
+
     except Exception as e:
         print(e)
         return -1

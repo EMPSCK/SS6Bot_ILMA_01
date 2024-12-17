@@ -50,7 +50,7 @@ book_number_kb = InlineKeyboardMarkup(inline_keyboard=[book_number_button])
 
 
 menu_button = [InlineKeyboardButton(text='Задать активное соревнование', callback_data='set_active_competition')]
-menu_button_01 = [InlineKeyboardButton(text='Ввести код', callback_data='enter_pin_on_menu')]
+menu_button_01 = [InlineKeyboardButton(text='Ввести код', callback_data='enter_chairaman_pin')]
 menu_kb = InlineKeyboardMarkup(inline_keyboard=[menu_button, menu_button_01])
 
 back_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Вернуться к меню', callback_data='back_to_chairman_menu')]])
@@ -188,7 +188,7 @@ async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
         with conn:
             cur = conn.cursor()
             if judges[judgeId][1] == 'l':
-                cur.execute(f"SELECT firstName, lastName, id, DSFARR_Category_Id, SPORT_CategoryDate, SPORT_CategoryDateConfirm, SPORT_Category, RegionId from competition_judges WHERE compId = {compId} and active = 1 and workCode = 0")
+                cur.execute(f"SELECT firstName, lastName, id, DSFARR_Category_Id, SPORT_CategoryDate, SPORT_CategoryDateConfirm, SPORT_Category, RegionId, workCode from competition_judges WHERE compId = {compId} and active = 1 and workCode <> 3 ")
                 all_judges = cur.fetchall()
                 if len(all_judges) == 0:
                     but2.append(InlineKeyboardButton(text='Назад', callback_data=f"back_to_generation"))
@@ -229,7 +229,7 @@ async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
 
 
             if judges[judgeId][1] == 'z':
-                cur.execute(f"SELECT firstName, lastName, id, DSFARR_Category_Id, SPORT_CategoryDate, SPORT_CategoryDateConfirm, SPORT_Category from competition_judges WHERE compId = {compId} and active = 1 and workCode = 1")
+                cur.execute(f"SELECT firstName, lastName, id, DSFARR_Category_Id, SPORT_CategoryDate, SPORT_CategoryDateConfirm, SPORT_Category, workCode from competition_judges WHERE compId = {compId} and active = 1 and workCode = 1")
                 all_judges = cur.fetchall()
                 if len(all_judges) == 0:
                     but2.append(InlineKeyboardButton(text='Назад', callback_data=f"back_to_generation"))
@@ -254,7 +254,17 @@ async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
 
 
             for j in range(len(all_judges)):
-                but2.append(InlineKeyboardButton(text=f'{all_judges[j]["lastName"]} {all_judges[j]["firstName"]}',
+                if all_judges[j]["workCode"] == 1:
+                    lastName = all_judges[j]["lastName"]
+                    firstName = all_judges[j]["firstName"] + ' (Згс)'
+                elif all_judges[j]["workCode"] == 2:
+                    lastName = all_judges[j]["lastName"]
+                    firstName = all_judges[j]["firstName"] + ' (Гс)'
+                else:
+                    lastName = all_judges[j]["lastName"]
+                    firstName = all_judges[j]["firstName"]
+
+                but2.append(InlineKeyboardButton(text=f'{lastName} {firstName}',
                                                  callback_data=f'gen_choise_jud_02_{all_judges[j]["id"]}'))
                 if j % 2 != 0:
                     buttons.append(but2)
@@ -268,7 +278,6 @@ async def edit_gen_judegs_markup(groupType, judgeId, judges, compId, json):
                 buttons.append(but2)
 
         return InlineKeyboardMarkup(inline_keyboard=buttons)
-
     except Exception as e:
         print(e)
 

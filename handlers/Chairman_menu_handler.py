@@ -34,9 +34,10 @@ class Solve_judges_problem(StatesGroup):
 
 #Вернуться в меню
 @router.callback_query(F.data == 'back_to_chairman_menu')
-async def cmd_start(call: types.CallbackQuery):
+async def cmd_start(call: types.CallbackQuery, state: FSMContext):
     user_status = await get_user_status_query.get_user_status(call.from_user.id)
     if user_status == 3:
+        await state.clear()
         active_comp = await general_queries.get_CompId(call.from_user.id)
         if await chairman_queries.del_unactive_comp(call.from_user.id, active_comp) == 1:
             active_comp = None
