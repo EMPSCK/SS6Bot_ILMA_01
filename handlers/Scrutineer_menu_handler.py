@@ -126,3 +126,17 @@ async def cmd_start(message: types.Message):
         elif status == -1:
             await message.answer('❌Ошибка')
     pass
+
+
+@router.message(Command("groups"))
+async def cmd_start(message: types.Message):
+    user_status = await get_user_status_query.get_user_status(message.from_user.id)
+    if user_status == 2 or user_status == 3:
+        groupList = await scrutineer_queries.get_group_list(message.from_user.id)
+        if groupList == -1:
+            await message.answer('❌Ошибка')
+            await message.delete()
+        else:
+            await message.answer(groupList, parse_mode='html')
+            await message.delete()
+

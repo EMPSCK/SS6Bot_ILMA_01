@@ -621,14 +621,22 @@ async def cmd_start(call: types.CallbackQuery):
             lastname = i[0]
             firstname = ' '.join(i[1::])
 
+
         oldf, oldl = generation_zgs_results[call.from_user.id]['json']['judges'][old]['firstName'], \
                      generation_zgs_results[call.from_user.id]['json']['judges'][old]['lastName']
+
         generation_zgs_results[call.from_user.id]['json']['msg'] = generation_zgs_results[call.from_user.id]['json'][
             'msg'].replace(oldl + ' ' + oldf, lastname + ' ' + firstname)
+
+        generation_zgs_results[call.from_user.id]['json']['judges'][old]['firstName'] = firstname
+        generation_zgs_results[call.from_user.id]['json']['judges'][old]['lastName'] = lastname
+        generation_zgs_results[call.from_user.id]['json']['judges'][old]['id'] = judgeId
         generation_zgs_results[call.from_user.id]['json']['judges'][judgeId] = \
-        generation_zgs_results[call.from_user.id]['json']['judges'][old]
+        generation_zgs_results[call.from_user.id]['json']['judges'][old].copy()
+
         generation_zgs_results[call.from_user.id]['json']['judges'].pop(old, None)
         await call.message.edit_text(generation_zgs_results[call.from_user.id]['json']['msg'],
                                      reply_markup=chairmans_kb.generation_zgs_kb)
+
     except:
         return await call.answer('❌Ошибка')

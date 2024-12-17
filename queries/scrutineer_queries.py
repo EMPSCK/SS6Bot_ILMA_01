@@ -198,3 +198,56 @@ async def pin_to_compid(pin):
             return ans['gsName']
     except:
         return 'не определено'
+
+
+async def getCompName(compId):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select compName from competition where compId = {compId}")
+            ans = cur.fetchone()
+            if ans is None:
+                return 'не найдено'
+            else:
+                return ans['compName']
+    except:
+        return 'не найдено'
+
+async def get_group_list(user_id):
+    try:
+        active_comp = await general_queries.get_CompId(user_id)
+        compName = await getCompName(active_comp)
+        info = await general_queries.CompId_to_name(active_comp)
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select groupNumber, groupName from competition_group where compId = {active_comp}")
+            ans = cur.fetchall()
+            groupList = ''
+            if len(ans) == 0:
+                groupList = "Группы не были обнаруженны"
+            for i in range(len(ans)):
+                if i % 2 != 0:
+                    groupList += f'<b>\n{ans[i]["groupNumber"]}. {ans[i]["groupName"]}</b>'
+                else:
+                    groupList += f'\n{ans[i]["groupNumber"]}. {ans[i]["groupName"]}'
+            text = f'{info}\n\n📋<b>Список групп:</b>{groupList}'
+            return text
+    except Exception as e:
+        print(e)
+        return -1
