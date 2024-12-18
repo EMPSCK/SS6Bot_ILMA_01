@@ -344,6 +344,18 @@ async def f2(message: Message, state: FSMContext):
         await message.bot.delete_message(chat_id=message.chat.id, message_id=enter_mes[message.from_user.id])
         await message.delete()
         booknumber = message.text
+        if booknumber.isdigit() == False:
+            await message.answer('❌Ошибка. Неверный формат данных', reply_markup=chairmans_kb.book_number_kb)
+            return
+
+        check_booknum = await scrutineer_queries.have_book_same_booknum(int(booknumber))
+        if check_booknum == -1:
+            await message.answer('❌Ошибка', reply_markup=chairmans_kb.book_number_kb)
+            return
+        elif check_booknum == 0:
+            await message.answer('❌Ошибка. Номер книжки не найден', reply_markup=chairmans_kb.book_number_kb)
+            return
+
         jud = current_problem_jud[message.from_user.id]
         status = await chairman_queries.check_cat_for_enter_book_number(message.from_user.id, int(booknumber))
         if status == 1:

@@ -300,3 +300,26 @@ async def get_chairmanRegInfo(pin):
     except Exception as e:
         print(e)
         return -1
+
+async def have_book_same_booknum(book_num):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT id FROM judges WHERE BookNumber = {book_num}")
+            a = cur.fetchone()
+            if a is None:
+                return 0
+            else:
+                return 1
+
+    except Exception as e:
+        print(e)
+        return -1
