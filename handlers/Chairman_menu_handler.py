@@ -172,6 +172,38 @@ async def cmd_judes(message: Message, state:FSMContext):
         else:
             await message.answer('❌Ошибка\nВыберите активное соревнование')
 
+#Загрузка списка судей
+@router.message(Command("judgesZgs"))
+async def cmd_judes(message: Message, state:FSMContext):
+    user_status = await get_user_status_query.get_user_status(message.from_user.id)
+    if user_status == 3 or user_status == 2:
+        judges_codes[message.from_user.id] = 1
+        last_added_judges[message.from_user.id] = []
+        try:
+            await state.clear()
+            enter_mes.pop(message.from_user.id, None)
+            current_problem_jud.pop(message.from_user.id, None)
+            problemjudgesset.pop(message.from_user.id, None)
+        except:
+            pass
+
+        if await chairman_queries.check_have_tour_date(message.from_user.id) == 0:
+            await message.answer('❌Ошибка. Установите активный турнир')
+            return
+
+        active_compId_chairman = await general_queries.get_CompId(message.from_user.id)
+        if active_compId_chairman != 0:
+            is_active = await general_queries.active_or_not(active_compId_chairman)
+            if is_active == 1:
+                await message.answer('Отправьте список в формате: Судья№1, Судья№2, ..., Судья№n.',
+                                     reply_markup=chairmans_kb.load_judges_kb)
+                await state.set_state(Load_list_judges.next_step)
+            else:
+                await message.answer('❌Ошибка\nВыбранное соревнование неактивно')
+        else:
+            await message.answer('❌Ошибка\nВыберите активное соревнование')
+
+
 
 @router.message(Load_list_judges.next_step)
 async def f2(message: Message, state: FSMContext):

@@ -367,12 +367,12 @@ async def edit_gen_judegs_markup_01(groupType, judgeId, judges, compId, json):
     except Exception as e:
         print(e)
 
+
 generation_zgs_button_01 = InlineKeyboardButton(text="Сохранить", callback_data='save_zgs_result')
 generation_zgs_button_02 = InlineKeyboardButton(text="Перегенерировать", callback_data='regenerate_zgs')
 generation_zgs_button_03 = InlineKeyboardButton(text="Редактировать", callback_data='edit_zgs')
 generation_zgs_button_04 = InlineKeyboardButton(text="Выйти из режима генерации", callback_data='end_zgs_generation_proces')
 generation_zgs_kb = InlineKeyboardMarkup(inline_keyboard=[[generation_zgs_button_01, generation_zgs_button_02], [generation_zgs_button_03, generation_zgs_button_04]])
-
 
 
 async def get_gen_zgs_edit_markup_01(json):
