@@ -172,6 +172,7 @@ async def cmd_judes(message: Message, state:FSMContext):
         else:
             await message.answer('❌Ошибка\nВыберите активное соревнование')
 
+
 #Загрузка списка судей
 @router.message(Command("judgesZgs"))
 async def cmd_judes(message: Message, state:FSMContext):
