@@ -52,9 +52,9 @@ book_number_kb = InlineKeyboardMarkup(inline_keyboard=[book_number_button])
 menu_button = [InlineKeyboardButton(text='Задать активное соревнование', callback_data='set_active_competition')]
 menu_button_01 = [InlineKeyboardButton(text='Ввести код', callback_data='enter_chairaman_pin')]
 menu_button_02 = [InlineKeyboardButton(text='Редактировать параметры групп', callback_data='group_edit')]
-menu_kb = InlineKeyboardMarkup(inline_keyboard=[menu_button, menu_button_01])
+menu_kb = InlineKeyboardMarkup(inline_keyboard=[menu_button, menu_button_02, menu_button_01])
 
-back_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Вернуться к меню', callback_data='back_to_chairman_menu')]])
+back_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Вернуться к меню', callback_data='back_b')]])
 
 list_jud_send_b1 = [InlineKeyboardButton(text='Подтвердить отправку', callback_data='send_list_anyway')]
 list_jud_send_b2 = [InlineKeyboardButton(text='показать свободных судей', callback_data='show_free_judges')]
@@ -492,10 +492,10 @@ async def get_edit_group_kb(user_id, compId):
                     but2 = []
 
             if len(but2) == 0:
-                b = [InlineKeyboardButton(text='Назад', callback_data=f"back_to_chairman_menu")]
+                b = [InlineKeyboardButton(text='Назад', callback_data=f"back_b")]
                 buttons.append(b)
             else:
-                but2.append(InlineKeyboardButton(text='Назад', callback_data=f"back_to_chairman_menu"))
+                but2.append(InlineKeyboardButton(text='Назад', callback_data=f"back_b "))
                 buttons.append(but2)
 
             return InlineKeyboardMarkup(inline_keyboard=buttons)

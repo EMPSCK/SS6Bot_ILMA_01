@@ -323,3 +323,39 @@ async def have_book_same_booknum(book_num):
     except Exception as e:
         print(e)
         return -1
+
+async def judges_group_list(user_id):
+    try:
+        active_comp = await general_queries.get_CompId(user_id)
+        name = await general_queries.CompId_to_name(active_comp)
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT lastName, firstName, group_counter FROM competition_judges WHERE compId = {active_comp} and active = 1 and workCode = 0 ORDER BY group_counter")
+            judgesComp = cur.fetchall()
+            cur.close()
+
+            #Если судьи не загружены на турнир
+            if judgesComp == ():
+                return 'Судьи не обнаружены'
+            #judges_free = name + '\n\n' +'\n'.join([i['lastName'] + ' ' + i['firstName'] + ', ' + str(i['City']) for i in judgesComp])
+            n = len(judgesComp)
+            judges_free = name + '\n' + f'Общее число: {n}' + '\n\n<b>Судья, судейства в группах</b>\n'
+            for i in judgesComp:
+                city = i['group_counter']
+                if city is None:
+                    city = 'не определено'
+                judges_free += i['lastName'] + ' ' + i['firstName'] + ', ' + str(city) + '\n'
+            return judges_free
+
+    except Exception as e:
+        print(e)
+        print('Ошибка выполнения запроса for_free')
+        return 0

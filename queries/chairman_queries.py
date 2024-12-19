@@ -1621,3 +1621,83 @@ async def is_rc_a(group_num, compId):
             return ans['sport']
     except:
         return -1
+
+async def update_zgs(compId):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"update competition_judges set workCode = 0 where workCode = 1")
+            conn.commit()
+            return 1
+    except:
+        return -1
+
+async def set_category(compId, groupNumber, code):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"update competition_group set minCategoryId = {code} where compId = {compId} and groupNumber = {groupNumber}")
+            conn.commit()
+            return 1
+    except:
+        return -1
+
+async def set_num_of_judges(compId, groupNumber, code, mode):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            if mode == 'l':
+                cur.execute(
+                    f"update competition_group set judges = {code} where compId = {compId} and groupNumber = {groupNumber}")
+                conn.commit()
+                return 1
+            if mode == 'z':
+                cur.execute(
+                    f"update competition_group set zgsNumber = {code} where compId = {compId} and groupNumber = {groupNumber}")
+                conn.commit()
+                return 1
+    except:
+        return -1
+
+
+async def set_type_of_group(compId, groupNumber, code):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"update competition_group set sport = {code} where compId = {compId} and groupNumber = {groupNumber}")
+            conn.commit()
+            return 1
+    except:
+        return -1

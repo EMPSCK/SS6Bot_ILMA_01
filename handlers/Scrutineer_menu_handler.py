@@ -143,3 +143,16 @@ async def cmd_start(message: types.Message):
             await message.answer(groupList, parse_mode='html')
             await message.delete()
 
+@router.message(Command("judges_workload"))
+async def cmd_start(message: types.Message):
+    user_status = await get_user_status_query.get_user_status(message.from_user.id)
+    if user_status == 3 or user_status == 2:
+        status = await scrutineer_queries.judges_group_list(message.from_user.id)
+        if status != 0:
+            await message.answer(status, parse_mode='html')
+        else:
+            await message.answer('❌Ошибка')
+    else:
+        msg = await message.answer('❌Ошибка. Нет прав.')
+        await start_stage_handler.del_message_after_time(msg, config.expirate_message_timer)
+
