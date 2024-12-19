@@ -99,7 +99,7 @@ async def cmd_start(message: types.Message):
 async def cmd_start(message: types.Message):
     await message.delete()
     user_status = await get_user_status_query.get_user_status(message.from_user.id)
-    if user_status == 2 or user_status == 3:
+    if user_status == 3:
         status, mode = await scrutineer_queries.change_private_mode(message.from_user.id)
         if status == 1:
             if mode == 0:
@@ -108,6 +108,9 @@ async def cmd_start(message: types.Message):
                 msg = await message.answer('🔼Режим конфиденциальности повышен')
         elif status == -1:
             await message.answer('❌Ошибка')
+    else:
+        msg = await message.answer('❌Ошибка. Нет прав.')
+        await start_stage_handler.del_message_after_time(msg, config.expirate_message_timer)
     pass
 
 @router.message(Command("change_generation_zgs_mode"))

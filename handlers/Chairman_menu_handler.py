@@ -12,6 +12,7 @@ from aiogram.fsm.state import StatesGroup, State
 from chairman_moves import load_judges_list
 from queries import scrutineer_queries
 from handlers import start_stage_handler
+from keyboards import scrutineer_kb
 
 import config
 router = Router()
@@ -24,6 +25,7 @@ judges_codes = {}
 generation_results = {}
 old_enter_pin_m = {}
 generation_zgs_results = {}
+edit_group_info = {}
 
 class Load_list_judges(StatesGroup):
     next_step = State()
@@ -686,3 +688,57 @@ async def cmd_start(call: types.CallbackQuery):
 
     except:
         return await call.answer('❌Ошибка')
+
+
+@router.callback_query(F.data == ('group_edit'))
+async def cmd_start(call: types.CallbackQuery):
+    try:
+        active_comp = await general_queries.get_CompId(call.from_user.id)
+        if active_comp == 0:
+            await call.message.answer('❌Ошибка\nСоревнование не найдено')
+            return
+        is_active = await general_queries.active_or_not(active_comp)
+        if is_active == 0:
+            await call.message.answer('❌Ошибка\nВыбранное соревнование неактивно')
+            return
+        markup = await chairmans_kb.get_edit_group_kb(call.from_user.id, active_comp)
+        await call.message.edit_text("Выберите группу для редактирования:", reply_markup=markup)
+    except:
+        return await call.answer('❌Ошибка')
+
+
+@router.callback_query(F.data.startswith('group_edit_01_'))
+async def cmd_start(call: types.CallbackQuery):
+    try:
+        compid, groupnumber = call.data.replace('group_edit_01_', '').split('_')
+        edit_group_info[call.from_user.id] = {'compId': compid, 'groupNumaber': groupnumber, 'call': call}
+        await call.message.edit_text('Выберите параметр', reply_markup=chairmans_kb.edit_group_kb)
+    except Exception as e:
+        print(e)
+        return await call.answer('❌Ошибка')
+
+
+
+class Edit_group_params(StatesGroup):
+    firstState = State()
+
+@router.callback_query(F.data == ('min_group_cat'))
+async def cmd_start(call: types.CallbackQuery, state:FSMContext):
+    try:
+        await call.message.edit_text("<b>Введите ид минимальной категории:</b>\n\nПятая: 1\nЧетвертая: 2\nТретья: 3\nВторая: 4\nПервая: 5\nВысшая: 6\nМеждународная: 7", parse_mode='html', reply_markup=chairmans_kb.back_kb)
+        await state.set_state(Edit_group_params.firstState)
+    except:
+        pass
+
+@router.message(Edit_group_params.firstState)
+async def cmd_start(message: Message, state:FSMContext):
+    try:
+        await message.delete()
+        cat_id = message.text
+        oldcall = edit_group_info[message.from_user.id]['call']
+        if cat_id not in ['1', '2', '3', '4', '5', '6', '7']:
+            await oldcall.message.edit_text('❌Ошибка. Неверный формат данных', reply_markup=scrutineer_kb.back_mark)
+            return
+    except:
+        pass
+

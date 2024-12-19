@@ -51,6 +51,7 @@ book_number_kb = InlineKeyboardMarkup(inline_keyboard=[book_number_button])
 
 menu_button = [InlineKeyboardButton(text='Задать активное соревнование', callback_data='set_active_competition')]
 menu_button_01 = [InlineKeyboardButton(text='Ввести код', callback_data='enter_chairaman_pin')]
+menu_button_02 = [InlineKeyboardButton(text='Редактировать параметры групп', callback_data='group_edit')]
 menu_kb = InlineKeyboardMarkup(inline_keyboard=[menu_button, menu_button_01])
 
 back_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Вернуться к меню', callback_data='back_to_chairman_menu')]])
@@ -465,3 +466,46 @@ async def same_zgs_fiter(all_judges, judges):
         if i['id'] in judges:
             all_judges_01.remove(i)
     return all_judges_01
+
+
+async def get_edit_group_kb(user_id, compId):
+    try:
+        buttons = []
+        but2 = []
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"select groupNumber, groupName from competition_group where compId = {compId}")
+            group_list = cur.fetchall()
+            for j in range(len(group_list)):
+                but2.append(InlineKeyboardButton(text=f'{group_list[j]["groupNumber"]}. {group_list[j]["groupName"]}',
+                                                 callback_data=f'group_edit_01_{compId}_{group_list[j]["groupNumber"]}'))
+                if j % 2 != 0:
+                    buttons.append(but2)
+                    but2 = []
+
+            if len(but2) == 0:
+                b = [InlineKeyboardButton(text='Назад', callback_data=f"back_to_chairman_menu")]
+                buttons.append(b)
+            else:
+                but2.append(InlineKeyboardButton(text='Назад', callback_data=f"back_to_chairman_menu"))
+                buttons.append(but2)
+
+            return InlineKeyboardMarkup(inline_keyboard=buttons)
+    except Exception as e:
+        print(e)
+
+
+edit_group_b1 = InlineKeyboardButton(text="Минимальная категория", callback_data='min_group_cat')
+edit_group_b2 = InlineKeyboardButton(text="Число линейных", callback_data='num_of_lin')
+edit_group_b3 = InlineKeyboardButton(text="Число згс", callback_data='num_of_zgs')
+edit_group_b4 = InlineKeyboardButton(text="Тип группы", callback_data='type_of_group')
+edit_group_b5 = InlineKeyboardButton(text="Назад", callback_data='back_b')
+edit_group_kb = InlineKeyboardMarkup(inline_keyboard=[[edit_group_b1, edit_group_b4], [edit_group_b2, edit_group_b3], [edit_group_b5]])
