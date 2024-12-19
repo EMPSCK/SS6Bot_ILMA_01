@@ -1208,7 +1208,7 @@ async def clean_group_counter(user_id):
         with conn:
             cur = conn.cursor()
             active_comp = await general_queries.get_CompId(user_id)
-            cur.execute(f"update competition_judges set group_counter = 0 where compId = {active_comp}")
+            cur.execute(f"update competition_judges set group_counter = 0 where compId = {active_comp} and active = 1")
             conn.commit()
             return 1
     except:

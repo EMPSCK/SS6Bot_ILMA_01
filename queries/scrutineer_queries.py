@@ -359,3 +359,35 @@ async def judges_group_list(user_id):
         print(e)
         print('Ошибка выполнения запроса for_free')
         return 0
+
+async def get_group_info(compId, groupNumber):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT groupName, judges, minCategoryId, zgsNumber, sport FROM competition_group WHERE compId = {compId} and groupNumber = {groupNumber}")
+            a = cur.fetchone()
+            if a is None:
+                return 'не определено'
+            else:
+                cat_decode = {0: 'РС А', 1: "Спортивная", 2: "РС Б"}
+                groupType = cat_decode[a['sport']]
+                d = {1:"Пятая", 2:"Четвертая", 3:"Третья", 4:"Вторая" ,5:"Первая", 6:"Высшая", 7:"Международная"}
+                d_cat = ''
+                if a['minCategoryId'] is None:
+                    d_cat = 'не определено'
+                else:
+                    d_cat = d[a["minCategoryId"]]
+
+                return f'<b>{groupNumber}. {a["groupName"]}</b>\nТип: {groupType}\nОграничение на категорию: {d_cat}\nКоличество членов линейной бригады: {a["judges"]}\nКоличество згс: {a["zgsNumber"]}'
+
+    except Exception as e:
+        print(e)
+        return -1

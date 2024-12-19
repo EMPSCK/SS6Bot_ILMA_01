@@ -703,7 +703,7 @@ async def cmd_start(call: types.CallbackQuery):
             await call.message.answer('❌Ошибка\nВыбранное соревнование неактивно')
             return
         markup = await chairmans_kb.get_edit_group_kb(call.from_user.id, active_comp)
-        await call.message.edit_text("Выберите группу для редактирования:", reply_markup=markup)
+        await call.message.edit_text("📋Выберите группу для редактирования:", reply_markup=markup)
     except:
         return await call.answer('❌Ошибка')
 
@@ -713,7 +713,8 @@ async def cmd_start(call: types.CallbackQuery):
     try:
         compid, groupnumber = call.data.replace('group_edit_01_', '').split('_')
         edit_group_info[call.from_user.id] = {'compId': compid, 'groupNumber': groupnumber, 'call': call}
-        await call.message.edit_text('Выберите параметр', reply_markup=chairmans_kb.edit_group_kb)
+        info = await scrutineer_queries.get_group_info(int(compid), int(groupnumber))
+        await call.message.edit_text(f'{info}\n\n📋Выберите параметр', reply_markup=chairmans_kb.edit_group_kb, parse_mode='html')
     except Exception as e:
         print(e)
         return await call.answer('❌Ошибка')
