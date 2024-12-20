@@ -318,6 +318,7 @@ async def f4(callback: types.CallbackQuery, state: FSMContext):
     except:
         await callback.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
 
+
 #Отправить как есть судью с проблемой по категории
 @router.callback_query(F.data == 'take_as_is_1')
 async def f4(callback: types.CallbackQuery, state: FSMContext):
@@ -361,6 +362,7 @@ async def f4(callback: types.CallbackQuery, state: FSMContext):
     if problemjudgesset[callback.from_user.id] == []:
         current_problem_jud[callback.from_user.id] = 'end'
     await edit_problem_jud(callback, state, 1)
+
 
 @router.callback_query(F.data == 'enter_book_number')
 async def f4(callback: types.CallbackQuery, state: FSMContext):
@@ -426,7 +428,6 @@ async def f2(callback: types.CallbackQuery, state: FSMContext):
         await state.clear()
         print(e)
         await callback.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
-
 
 
 @router.callback_query(F.data == 'back_to_edit_jud')
@@ -552,6 +553,7 @@ async def get_mes_menu(message: Message):
 
 class Gen_zgs_states(StatesGroup):
     firstState = State()
+
 
 from chairman_moves import generation_logic
 @router.message(Command("gen_zgs"))
@@ -725,6 +727,7 @@ class Edit_group_params(StatesGroup):
     firstState = State()
     secondState = State()
     ThirdState = State()
+    FourState = State()
 
 @router.callback_query(F.data == ('min_group_cat'))
 async def cmd_start(call: types.CallbackQuery, state:FSMContext):
@@ -751,13 +754,11 @@ async def cmd_start(message: Message, state:FSMContext):
             status = await chairman_queries.set_category(compId, groupNumber, int(cat_id))
             if status == 1:
                 await state.clear()
-                text, status = await start_stage_handler.get_mes_menu(message)
-                if status == 0:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.scrutiner_chairman_mark)
-                if status == 2:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.menu_kb)
-                if status == 3:
-                    await oldcall.message.edit_text(text, reply_markup=chairmans_kb.menu_kb)
+                compId, groupNumber = edit_group_info[message.from_user.id]['compId'], edit_group_info[message.from_user.id]['groupNumber']
+                call = edit_group_info[message.from_user.id]['call']
+                info = await scrutineer_queries.get_group_info(int(compId), int(groupNumber))
+                await call.message.edit_text(f'{info}\n\n📋Выберите параметр', reply_markup=chairmans_kb.edit_group_kb,
+                                             parse_mode='html')
             else:
                 await state.clear()
                 await oldcall.message.edit_text('❌Ошибка', reply_markup=scrutineer_kb.back_mark)
@@ -791,13 +792,12 @@ async def cmd_start(message: Message, state:FSMContext):
             status = await chairman_queries.set_num_of_judges(compId, groupNumber, int(cat_id), 'l')
             if status == 1:
                 await state.clear()
-                text, status = await start_stage_handler.get_mes_menu(message)
-                if status == 0:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.scrutiner_chairman_mark)
-                if status == 2:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.menu_kb)
-                if status == 3:
-                    await oldcall.message.edit_text(text, reply_markup=chairmans_kb.menu_kb)
+                compId, groupNumber = edit_group_info[message.from_user.id]['compId'], \
+                                      edit_group_info[message.from_user.id]['groupNumber']
+                call = edit_group_info[message.from_user.id]['call']
+                info = await scrutineer_queries.get_group_info(int(compId), int(groupNumber))
+                await call.message.edit_text(f'{info}\n\n📋Выберите параметр', reply_markup=chairmans_kb.edit_group_kb,
+                                             parse_mode='html')
             else:
                 await state.clear()
                 await oldcall.message.edit_text('❌Ошибка', reply_markup=scrutineer_kb.back_mark)
@@ -833,13 +833,12 @@ async def cmd_start(message: Message, state:FSMContext):
             status = await chairman_queries.set_num_of_judges(compId, groupNumber, int(cat_id), 'z')
             if status == 1:
                 await state.clear()
-                text, status = await start_stage_handler.get_mes_menu(message)
-                if status == 0:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.scrutiner_chairman_mark)
-                if status == 2:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.menu_kb)
-                if status == 3:
-                    await oldcall.message.edit_text(text, reply_markup=chairmans_kb.menu_kb)
+                compId, groupNumber = edit_group_info[message.from_user.id]['compId'], \
+                                      edit_group_info[message.from_user.id]['groupNumber']
+                call = edit_group_info[message.from_user.id]['call']
+                info = await scrutineer_queries.get_group_info(int(compId), int(groupNumber))
+                await call.message.edit_text(f'{info}\n\n📋Выберите параметр', reply_markup=chairmans_kb.edit_group_kb,
+                                             parse_mode='html')
             else:
                 await state.clear()
                 await oldcall.message.edit_text('❌Ошибка', reply_markup=scrutineer_kb.back_mark)
@@ -854,12 +853,12 @@ async def cmd_start(message: Message, state:FSMContext):
 async def cmd_start(call: types.CallbackQuery, state:FSMContext):
     try:
         await call.message.edit_text("<b>Введите новыйй ид типа группы</b>\n\nСпортивная: 1\nРС А: 0\nРС Б: 2", parse_mode='html', reply_markup=chairmans_kb.back_kb)
-        await state.set_state(Edit_group_params.ThirdState)
+        await state.set_state(Edit_group_params.FourState)
     except:
         pass
 
 
-@router.message(Edit_group_params.ThirdState)
+@router.message(Edit_group_params.FourState)
 async def cmd_start(message: Message, state:FSMContext):
     try:
         use_id = message.from_user.id
@@ -875,13 +874,12 @@ async def cmd_start(message: Message, state:FSMContext):
             status = await chairman_queries.set_type_of_group(compId, groupNumber, int(cat_id))
             if status == 1:
                 await state.clear()
-                text, status = await start_stage_handler.get_mes_menu(message)
-                if status == 0:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.scrutiner_chairman_mark)
-                if status == 2:
-                    await oldcall.message.edit_text(text, reply_markup=scrutineer_kb.menu_kb)
-                if status == 3:
-                    await oldcall.message.edit_text(text, reply_markup=chairmans_kb.menu_kb)
+                compId, groupNumber = edit_group_info[message.from_user.id]['compId'], \
+                                      edit_group_info[message.from_user.id]['groupNumber']
+                call = edit_group_info[message.from_user.id]['call']
+                info = await scrutineer_queries.get_group_info(int(compId), int(groupNumber))
+                await call.message.edit_text(f'{info}\n\n📋Выберите параметр', reply_markup=chairmans_kb.edit_group_kb,
+                                             parse_mode='html')
             else:
                 await state.clear()
                 await oldcall.message.edit_text('❌Ошибка', reply_markup=scrutineer_kb.back_mark)
