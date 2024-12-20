@@ -85,7 +85,6 @@ async def check_list(text, user_id):
 
 
                 if flag1 == 0 and group_num is not None:
-
                     groupType = await chairman_queries.is_rc_a(group_num, active_comp)
                     if groupType == 0:
                         msg, flag8 = await chairman_queries.check_rc_a_regions_VE(linjud, active_comp, group_num)

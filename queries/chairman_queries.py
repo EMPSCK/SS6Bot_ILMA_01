@@ -1586,7 +1586,7 @@ async def check_rc_a_regions_VE(linjuds, compId, group_num):
                     regions_result += 1
                     bad_list.add(reg)
         if regions_result == 0:
-            return 0
+            return '', 0
         else:
             msg = {}
             for bad_reg in bad_list:
@@ -1598,7 +1598,6 @@ async def check_rc_a_regions_VE(linjuds, compId, group_num):
             return f"Распределение регионов судей не соответствует правилам РС А: {msg}", 1
 
     except Exception as e:
-        print(e)
         return 0
 
 
