@@ -584,7 +584,7 @@ async def f2(message: Message, state: FSMContext):
             json = await generation_logic.generate_zgs(active_comp, int(num))
             await message.delete()
             await generation_zgs_results[message.from_user.id]['en_msg'].delete()
-            msg = await message.answer(json['msg'], reply_markup=chairmans_kb.generation_zgs_kb)
+            msg = await message.answer(json['msg'], reply_markup=chairmans_kb.generation_zgs_kb, parse_mode='html')
             generation_zgs_results[message.from_user.id] = {'json': json, 'num': num, 'compId': active_comp}
             await state.clear()
         else:
@@ -601,7 +601,7 @@ async def cmd_start(call: types.CallbackQuery, state: FSMContext):
         num = generation_zgs_results[call.from_user.id]['num']
         active_comp = await general_queries.get_CompId(call.from_user.id)
         json = await generation_logic.generate_zgs(active_comp, int(num))
-        msg = await call.message.edit_text(json['msg'], reply_markup=chairmans_kb.generation_zgs_kb)
+        msg = await call.message.edit_text(json['msg'], reply_markup=chairmans_kb.generation_zgs_kb, parse_mode='html')
         generation_zgs_results[call.from_user.id] = {'json': json, 'num': num, 'compId': active_comp}
         await state.clear()
     except Exception as e:
@@ -633,7 +633,7 @@ async def cmd_start(call: types.CallbackQuery):
 async def cmd_start(call: types.CallbackQuery):
     try:
         text = generation_zgs_results[call.from_user.id]['json']['msg']
-        await call.message.edit_text(text, reply_markup=chairmans_kb.generation_zgs_kb)
+        await call.message.edit_text(text, reply_markup=chairmans_kb.generation_zgs_kb, parse_mode='html')
     except:
         pass
 
@@ -687,7 +687,7 @@ async def cmd_start(call: types.CallbackQuery):
 
         generation_zgs_results[call.from_user.id]['json']['judges'].pop(old, None)
         await call.message.edit_text(generation_zgs_results[call.from_user.id]['json']['msg'],
-                                     reply_markup=chairmans_kb.generation_zgs_kb)
+                                     reply_markup=chairmans_kb.generation_zgs_kb, parse_mode='html')
 
     except:
         return await call.answer('❌Ошибка')

@@ -431,7 +431,7 @@ async def handle_text_message(message: types.Message):
         #print(list(judges.keys()), "Генерация")
         #print(judges)
         #print()
-        await message.answer(ans, reply_markup=markup)
+        await message.answer(ans, reply_markup=markup, parse_mode='html')
     except Exception as e:
         print(e)
         await message.answer('❌Ошибка')
@@ -459,7 +459,7 @@ async def f4(callback: types.CallbackQuery):
         if markup == -1:
             return callback.message.answer('❌Ошибка')
 
-        await callback.message.edit_text(ans, reply_markup=markup)
+        await callback.message.edit_text(ans, reply_markup=markup, parse_mode='html')
     except Exception as e:
         print(e)
         await callback.answer('❌Изменения не обнаружены')
@@ -493,7 +493,7 @@ async def f4(callback: types.CallbackQuery):
                         name = f'@{callback.from_user.username}'
 
                     await callback.message.bot.send_message(scrutineer_id, f"Сообщение от пользователя {name}")
-                    await callback.message.bot.send_message(scrutineer_id, callback.message.text)
+                    await callback.message.bot.send_message(scrutineer_id, f"<code>{callback.message.text}</code>", parse_mode='html')
                     await callback.message.delete_reply_markup()
                     await chairman_queries.set_group_counter(generation_results[callback.from_user.id]['judges'], generation_results[callback.from_user.id]['compId'])
                     await callback.message.answer('✅Информация отправлена РСК')
@@ -524,7 +524,7 @@ async def f4(callback: types.CallbackQuery):
     compid = await general_queries.get_CompId(callback.from_user.id)
     markup = await chairmans_kb.get_generation_kb(compid)
     text = generation_results[callback.from_user.id]['ans']
-    await callback.message.edit_text(text=text, reply_markup=markup)
+    await callback.message.edit_text(text=text, reply_markup=markup, parse_mode='html')
 
 
 @router.callback_query(F.data.startswith('gen_choise_jud_01_'))
@@ -582,7 +582,7 @@ async def cmd_start(call: types.CallbackQuery):
     markup = await chairmans_kb.get_generation_kb(compid)
 
 
-    await call.message.edit_text(text=text, reply_markup=markup)
+    await call.message.edit_text(text=text, reply_markup=markup, parse_mode='html')
 
 
 #Обработка сообщений между scrutineer и chairman
